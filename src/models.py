@@ -7,23 +7,47 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+class User(Base):
+    __tablename__ = 'user'
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    username = Column(String(255), nullable=False)
+    firstname = Column(String(255), nullable=False)
+    lastname = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False)
+    comment = relationship('Comment', backref='user', lazy=True)
+    followers = relationship('Follower', backref='user', lazy=True)
+    posts = relationship('Post', backref= 'user', lazy=True)
+
+class Post(Base):
+    __tablename__ = 'posts'
+
+    id = Column(Integer, primary_key=True)
+    author_id = Column(Integer, ForeignKey('user.id'), nullable=True)
+    post_text = Column(String(255), nullable=False)
+    media = relationship('Media', backref='posts', lazy=True)
+
+class Media(Base):
+    __tablename__ = 'media'
+
+    id = Column(Integer, primary_key=True)
+    post_id = Column(Integer, ForeignKey('posts.id'), nullable=False)
+    type = Column(String(255), nullable=False)
+    url = Column(String(255), nullable=False)
+
+class Comment(Base):
+    __tablename__ = 'comments'
+
+    id = Column(Integer, primary_key=True)
+    post_id = Column(Integer, ForeignKey('posts.id'), nullable=False)
+    comment_text = Column(String(255), nullable=False)
+
+class Follower(Base):
+    __tablename__ = 'followers'
+
+    user_from_id = Column(Integer, ForeignKey('user.id'),primary_key=True, nullable= False)
+    user_to_id = Column(Integer, ForeignKey('user.id'), primary_key=True, nullable = False)
+
 
     def to_dict(self):
         return {}
